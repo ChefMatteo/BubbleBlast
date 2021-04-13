@@ -4,23 +4,33 @@ public class Bubble {
     private BubbleStatement statement;
     private String appearance;
 
-    public void Touched(){
+    public boolean Touched(){
+        //TODO switch
         if(statement == BubbleStatement.EMPTY) {
             statement = BubbleStatement.PUFFY;
             appearance = "(2)";
+            return true;
         }
-        if(statement == BubbleStatement.PUFFY) {
+        else if(statement == BubbleStatement.PUFFY) {
             statement = BubbleStatement.READY_TO_EXPLODE;
             appearance = "(1)";
+            return true;
 
         }
-        if(statement == BubbleStatement.READY_TO_EXPLODE) {
+        else if(statement == BubbleStatement.READY_TO_EXPLODE) {
             statement = BubbleStatement.EXPLODED;
-            appearance = " ";
+            appearance = "   ";
+            Explosion();
+            return true;
         }
+        else return false;
     }
 
-//    Constructors
+    //TODO Explosion
+    private void Explosion() {
+    }
+
+    //    Constructors
     public Bubble(int n) {
         if(n == 2) {
             appearance = "(3)";
