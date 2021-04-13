@@ -1,0 +1,72 @@
+Partita iniziata con 5 tentativi.
+Inserite le coordinate x:1 y: 0
+Alle coordinate x: 1 y: 0 la bolla è esplosa.
+Alle coordinate x: 0 y: 0 la bolla è passata a mezza gonfia.
+Alle coordinate x: 1 y: 1 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 2 y: 0 la bolla è passata a mezza gonfia.
+Inserite le coordinate x:1 y: 1
+Alle coordinate x: 1 y: 1 la bolla è esplosa.
+Alle coordinate x: 0 y: 1 la bolla è esplosa.
+Alle coordinate x: 0 y: 0 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 0 y: 2 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 2 y: 1 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 1 y: 2 la bolla è esplosa.
+Alle coordinate x: 0 y: 2 la bolla è esplosa.
+Alle coordinate x: 0 y: 0 la bolla è esplosa.
+Alle coordinate x: 0 y: 3 la bolla è passata a mezza gonfia.
+Alle coordinate x: 2 y: 0 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 0 y: 3 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 2 y: 2 la bolla è passata a mezza gonfia.
+Alle coordinate x: 1 y: 3 la bolla è passata a mezza gonfia.
+Alle coordinate x: 2 y: 2 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 2 y: 1 la bolla è esplosa.
+Alle coordinate x: 2 y: 0 la bolla è esplosa.
+Alle coordinate x: 2 y: 2 la bolla è esplosa.
+Alle coordinate x: 2 y: 3 la bolla è passata a mezza gonfia.
+Alle coordinate x: 3 y: 2 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 3 y: 0 la bolla è esplosa.
+Alle coordinate x: 3 y: 1 la bolla è esplosa.
+Alle coordinate x: 3 y: 2 la bolla è esplosa.
+Alle coordinate x: 3 y: 3 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 4 y: 2 la bolla è esplosa.
+Alle coordinate x: 4 y: 1 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 4 y: 3 la bolla è esplosa.
+Alle coordinate x: 4 y: 1 la bolla è esplosa.
+Alle coordinate x: 4 y: 0 la bolla è esplosa.
+Alle coordinate x: 4 y: 4 la bolla è passata a mezza gonfia.
+Alle coordinate x: 4 y: 4 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 3 y: 3 la bolla è esplosa.
+Alle coordinate x: 2 y: 3 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 3 y: 4 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 4 y: 4 la bolla è esplosa.
+Alle coordinate x: 3 y: 4 la bolla è esplosa.
+Alle coordinate x: 2 y: 4 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 3 y: 5 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 4 y: 5 la bolla è passata a mezza gonfia.
+Alle coordinate x: 2 y: 3 la bolla è esplosa.
+Alle coordinate x: 1 y: 3 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 2 y: 4 la bolla è esplosa.
+Alle coordinate x: 1 y: 4 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 2 y: 5 la bolla è passata a mezza gonfia.
+Inserite le coordinate x:0 y: 0
+Inserite coordinate di una bolla esplosa.
+Inserite le coordinate x:0 y: 3
+Alle coordinate x: 0 y: 3 la bolla è esplosa.
+Alle coordinate x: 0 y: 4 la bolla è passata a mezza gonfia.
+Alle coordinate x: 1 y: 3 la bolla è esplosa.
+Alle coordinate x: 1 y: 4 la bolla è esplosa.
+Alle coordinate x: 0 y: 4 la bolla è passata a pronta per esplodere.
+Alle coordinate x: 1 y: 5 la bolla è passata a pronta per esplodere.
+Inserite le coordinate x:0 y: 5
+Alle coordinate x: 0 y: 5 la bolla è esplosa.
+Alle coordinate x: 0 y: 4 la bolla è esplosa.
+Alle coordinate x: 1 y: 5 la bolla è esplosa.
+Alle coordinate x: 2 y: 5 la bolla è passata a pronta per esplodere.
+Inserite le coordinate x:2 y: 2
+Inserite coordinate di una bolla esplosa.
+Inserite coordinate non valide.
+Inserite le coordinate x:2 y: 5
+Alle coordinate x: 2 y: 5 la bolla è esplosa.
+Alle coordinate x: 3 y: 5 la bolla è esplosa.
+Alle coordinate x: 4 y: 5 la bolla è passata a pronta per esplodere.
+partita persa

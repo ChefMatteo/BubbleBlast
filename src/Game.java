@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Game {
@@ -14,6 +16,16 @@ public class Game {
 */
         while (gameGrid.MovesLeftController() && flag) {
             flag = InGame(gameGrid);
+        }
+/*
+        Stampa file di log
+*/
+        try {
+            FileWriter writer = new FileWriter("MovesOfGame.txt");
+            writer.write(gameGrid.getMovesOfGame().toString());
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }
@@ -31,6 +43,7 @@ public class Game {
                                 le bolle che stanno per esplodere sono rappresentate da (1)
                         """);
         System.out.println("Hai a disposizione " + gameGrid.getMovesLeft() + " tentativi!");
+        gameGrid.getMovesOfGame().append("Partita iniziata con ").append(gameGrid.getMovesLeft()).append(" tentativi.\n");
         gameGrid.GridStamp();
     }
 

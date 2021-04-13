@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.*;
 
@@ -14,6 +17,7 @@ public class GameGrid {
     //Attributes
     private List<List<Bubble>> grid;
     private int movesLeft;
+    private StringBuilder MovesOfGame = new StringBuilder();
     private final String [] ACCEPTED_GRID_COORDINATES = {
             "A1","A2","A3","A4","A5","A6",
             "B1","B2","B3","B4","B5","B6",
@@ -29,6 +33,12 @@ public class GameGrid {
     //Getters and setters
     public int getMovesLeft() {
         return movesLeft;
+    }
+    public List<List<Bubble>> getGrid() {
+        return grid;
+    }
+    public StringBuilder getMovesOfGame() {
+        return MovesOfGame;
     }
 
     //Grid methods
@@ -58,8 +68,9 @@ public class GameGrid {
         grid.stream()
                 .map(a -> a.stream()
                         //Per ogni lista prende solo la view delle bolle
-                        .map(Bubble::getAppearance).collect(Collectors.toList()))
+                        .map(Bubble::getBubbleView).collect(Collectors.toList()))
                 .forEach(System.out::println);
+        System.out.println("");
     }
 
     public boolean Move(String coordinates) {
@@ -85,18 +96,26 @@ public class GameGrid {
                     default -> throw new IllegalStateException("Unexpected value: " + coordinates.toLowerCase().charAt(0));
                 }
                 y = Integer.parseInt(coordinates.substring(1)) - 1;
+                MovesOfGame
+                        .append("Inserite le coordinate x: ")
+                        .append(x)
+                        .append(" y: ")
+                        .append(y)
+                        .append("\n");
+
 /*
             Chiamata per il cambio stato della bolla selezionata
 */
 /*
                 Verifica esistenza bolla
 */
-                if (grid.get(x).get(y).Touched()) {
+                if (grid.get(x).get(y).Touched(x, y)) {
 /*
                 Controllo per individuare una vittoria
 */
                     if (!CheckNonExplodedBubbles()) {
                         System.out.println("Hai vinto!!!");
+                        MovesOfGame.append("partita vinta.\n");
                         return false;
                     } else {
                         GridStamp();
@@ -113,10 +132,12 @@ public class GameGrid {
                     }
                 } else {
                     System.out.println("Nessuna bolla presente, riprova");
+                    MovesOfGame.append("Inserite coordinate di una bolla esplosa.\n");
                     return true;
                 }
             } else {
                 System.out.println("Inserire coordinate valide");
+                MovesOfGame.append("Inserite coordinate non valide.\n");
                 return true;
             }
 
@@ -138,6 +159,7 @@ public class GameGrid {
 */
         if (movesLeft == 0 && CheckNonExplodedBubbles()) {
             System.out.println("Hai perso, ritenta!");
+            MovesOfGame.append("Partita persa.\n");
             return false;
         }
         else return true;

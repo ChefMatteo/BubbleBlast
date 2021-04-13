@@ -1,65 +1,119 @@
-import java.util.Objects;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Bubble {
     private BubbleStatement statement;
-    private String appearance;
-
-    public boolean Touched(){
-        //TODO switch
-        if(statement == BubbleStatement.EMPTY) {
-            statement = BubbleStatement.PUFFY;
-            appearance = "(2)";
-            return true;
-        }
-        else if(statement == BubbleStatement.PUFFY) {
-            statement = BubbleStatement.READY_TO_EXPLODE;
-            appearance = "(1)";
-            return true;
-
-        }
-        else if(statement == BubbleStatement.READY_TO_EXPLODE) {
-            statement = BubbleStatement.EXPLODED;
-            appearance = "   ";
-            Explosion();
-            return true;
-        }
-        else return false;
-    }
-
-    //TODO Explosion
-    private void Explosion() {
-    }
+    private String bubbleView;
 
     //    Constructors
     public Bubble(int n) {
-        if(n == 2) {
-            appearance = "(3)";
-            statement = BubbleStatement.EMPTY;
+        switch(n) {
+            case 2 -> {
+                bubbleView = "(3)";
+                statement = BubbleStatement.EMPTY;
+            }
+            case 1 -> {
+                bubbleView = "(2)";
+                statement = BubbleStatement.PUFFY;
+            }
+            case 0 -> {
+                bubbleView = "(1)";
+                statement = BubbleStatement.READY_TO_EXPLODE;
+            }
         }
-        if(n == 1) {
-            appearance = "(2)";
-            statement = BubbleStatement.PUFFY;
-        }
-        if(n == 0) {
-            appearance = "(1)";
-            statement = BubbleStatement.READY_TO_EXPLODE;
-    }
-
 }
 
-//    Getters and Setters
+    //    Getters and Setters
     public BubbleStatement getStatement() {
         return statement;
     }
-    public void setStatement(BubbleStatement statement) {
-        this.statement = statement;
+    public String getBubbleView() {
+        return bubbleView;
     }
-    public String getAppearance() {
-        return appearance;
+
+    //Bubble methods
+    public boolean Touched(int x, int y) {
+        GameGrid grid = GameGrid.getGameGrid();
+        switch (statement) {
+            case EMPTY -> {
+                bubbleView = "(2)";
+                grid.GridStamp();
+                grid.getMovesOfGame()
+                        .append("Alle coordinate x: ")
+                        .append(x)
+                        .append(" y: ")
+                        .append(y)
+                        .append(" la bolla è passata a mezza gonfia.\n");
+                statement = BubbleStatement.PUFFY;
+                return true;
+            }
+            case PUFFY -> {
+                bubbleView = "(1)";
+                grid.GridStamp();
+                grid.getMovesOfGame()
+                        .append("Alle coordinate x: ")
+                        .append(x)
+                        .append(" y: ")
+                        .append(y)
+                        .append(" la bolla è passata a pronta per esplodere.\n");
+                statement = BubbleStatement.READY_TO_EXPLODE;
+                return true;
+            }
+            case READY_TO_EXPLODE -> {
+                bubbleView = "   ";
+                grid.GridStamp();
+                grid.getMovesOfGame()
+                        .append("Alle coordinate x: ")
+                        .append(x)
+                        .append(" y: ")
+                        .append(y)
+                        .append(" la bolla è esplosa.\n");
+                statement = BubbleStatement.EXPLODED;
+                Explosion(x, y);
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
     }
-    public void setAppearance(String appearance) {
-        this.appearance = appearance;
+
+    private void Explosion(int x, int y) {
+        GameGrid grid = GameGrid.getGameGrid();
+        //limiti max delle liste
+        int maxX = 4;
+        int maxY = 5;
+        //propagazione a sinistra
+        for(int i = y-1; i >= 0; i--){
+            if(grid.getGrid().get(x).get(i).getStatement() != BubbleStatement.EXPLODED){
+                grid.getGrid().get(x).get(i).Touched(x, i);
+                break;
+            }
+        }
+        //propagazione in alto
+        for(int i = x-1; i >= 0; i--){
+            if(grid.getGrid().get(i).get(y).getStatement() != BubbleStatement.EXPLODED){
+                grid.getGrid().get(i).get(y).Touched(i, y);
+                break;
+            }
+        }
+        //propagazione a destra
+        for(int i = y+1; i <= maxY; i++){
+            if(grid.getGrid().get(x).get(i).getStatement() != BubbleStatement.EXPLODED){
+                grid.getGrid().get(x).get(i).Touched(x, i);
+                break;
+            }
+        }
+        //propagazione in basso
+        for(int i = x+1; i <= maxX; i++){
+            if(grid.getGrid().get(i).get(y).getStatement() != BubbleStatement.EXPLODED){
+                grid.getGrid().get(i).get(y).Touched(i, y);
+                break;
+            }
+        }
     }
+
+
 
 }
 
