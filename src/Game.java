@@ -9,6 +9,9 @@ public class Game {
         GameGrid gameGrid = GameGrid.getGameGrid();
         Start(gameGrid);
         boolean flag = true;
+/*
+        Ciclo continuo fino ad esaurimento mosse o eventuale vincita
+*/
         while (gameGrid.MovesLeftController() && flag) {
             flag = InGame(gameGrid);
         }

@@ -12,14 +12,14 @@ public class GameGrid {
     }
 
     //Attributes
-    private Bubble [][] grid;
+    private List<List<Bubble>> grid;
+    private int movesLeft;
     private final String [] ACCEPTED_GRID_COORDINATES = {
             "A1","A2","A3","A4","A5","A6",
             "B1","B2","B3","B4","B5","B6",
             "C1","C2","C3","C4","C5","C6",
             "D1","D2","D3","D4","D5","D6",
             "E1","E2","E3","E4","E5","E6"};
-    private int movesLeft;
 
     //Constructor
     private GameGrid() {
@@ -36,27 +36,28 @@ public class GameGrid {
 
 /*
         //***Test**
-        Bubble[] test = {new Bubble(1)};
-        Bubble[][] gridTest = {test};
+        List<Bubble> test = new ArrayList<Bubble>();
+        test.add(new Bubble(2));
+        List<List<Bubble>> gridTest = new ArrayList<>();
+        gridTest.add(test);
         grid = gridTest;
 */
-
-        //Stream che crea 5 array[5]
+        //Stream che crea 5 List.size()=5
         grid = IntStream.range(1, 6).mapToObj(a ->
-                //Stream che crea 6 bolle casuali e le inserisce negli array del primo stream
+                //Stream che crea 6 bolle casuali e le inserisce nelle liste del primo stream
                 IntStream.range(1, 7)
                         .mapToObj(b -> new Bubble((new Random().nextInt(3))))
-                        .toArray(Bubble[]::new))
-                .toArray(Bubble[][]::new);
+                        .toList())
+                .toList();
 
         MovesLeft(grid);
     }
 
     public void GridStamp(){
-        //Stream per ogni array
-        Stream.of(grid)
-                .map(a -> Arrays.stream(a)
-                        //Per ogni array prende solo la view delle bolle
+        //Stream per ogni lista
+        grid.stream()
+                .map(a -> a.stream()
+                        //Per ogni lista prende solo la view delle bolle
                         .map(Bubble::getAppearance).collect(Collectors.toList()))
                 .forEach(System.out::println);
     }
@@ -90,7 +91,7 @@ public class GameGrid {
 /*
                 Verifica esistenza bolla
 */
-                if (grid[x][y].Touched()) {
+                if (grid.get(x).get(y).Touched()) {
 /*
                 Controllo per individuare una vittoria
 */
@@ -126,16 +127,9 @@ public class GameGrid {
 /*
         Controllo per individuare bolle non esplose
 */
-        return Arrays.stream(grid)
-                .map(a-> Arrays.stream(a)
-                        .filter(bubble -> bubble.getStatement() != BubbleStatement.EXPLODED)
-                        .collect(Collectors.toList()))
-                .collect(Collectors.toList())
-                .stream().flatMap(Collection::stream)
+        return grid.stream()
+                .flatMap(Collection::stream)
                 .anyMatch(a->a.getStatement() != BubbleStatement.EXPLODED);
-
-
-
     }
 
     public boolean MovesLeftController() {
@@ -150,7 +144,7 @@ public class GameGrid {
     }
 
     //TODO MovesLeft
-    public void MovesLeft(Bubble[][] grid){
+    public void MovesLeft(List<List<Bubble>> grid){
         movesLeft = 5;
     }
 }
