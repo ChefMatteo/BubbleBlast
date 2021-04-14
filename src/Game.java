@@ -7,15 +7,17 @@ public class Game {
     public static void main(String[] args) {
         GameGrid gameGrid = GameGrid.getGameGrid();
         Start(gameGrid);
-//        gameGrid.HeadTest();
+        gameGrid.HeadTest();
         boolean flag = true;
 /*
         Ciclo continuo fino ad esaurimento mosse o eventuale vincita
 */
 
+/*
         while (gameGrid.MovesLeftController() && flag) {
             flag = InGame(gameGrid);
         }
+*/
 /*
         Stampa file di log
 */

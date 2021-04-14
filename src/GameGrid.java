@@ -14,6 +14,7 @@ public class GameGrid {
     //Attributes
     private List<List<Bubble>> grid;
     private int movesLeft;
+    public static int counterMovesLeft = 1;
     private StringBuilder movesOfGame = new StringBuilder();
     private final String [] ACCEPTED_GRID_COORDINATES = {
             "A1","A2","A3","A4","A5","A6",
@@ -21,10 +22,6 @@ public class GameGrid {
             "C1","C2","C3","C4","C5","C6",
             "D1","D2","D3","D4","D5","D6",
             "E1","E2","E3","E4","E5","E6"};
-
-    //Attibutes for MovesLeft() controlles
-    private HashMap<Integer, Integer> coordinatesToBeExcluded = new HashMap<>();
-
 
     //Constructor
     private GameGrid() {
@@ -182,38 +179,55 @@ public class GameGrid {
 
     //TODO MovesLeft
     public void MovesLeft(List<List<Bubble>> grid){
-        movesLeft = 5;
+        movesLeft = 50;
     }
 
     public void HeadTest(){
         GameGrid gridTest = getGameGrid();
-        int movesCounter = Integer.MAX_VALUE;
-        test(coordinatesToBeExcluded, gridTest);
+        try {
+            test(gridTest, BubbleStatement.READY_TO_EXPLODE, BubbleStatement.READY_TO_EXPLODE);
+            System.out.println("counterBest: " + counterMovesLeft);
+        }catch (StackOverflowError e){
+            e.printStackTrace();
+        }
     }
 
-    public boolean test(HashMap<Integer, Integer> coordinatesToBeExcluded, GameGrid gridTest){
+    public void test (GameGrid gridTest, BubbleStatement statementOfNearBubble, BubbleStatement statementToTouch) {
+        System.out.println("INIZIO");
         int maxCol = 5;
         int maxRow = 4;
         int x = 0;
         int y = 0;
         int counter = Integer.MIN_VALUE;
-        boolean flag = false;
         for(int row = 0; row <= maxRow; row++){
             for(int col = 0; col <= maxCol; col++){
-                System.out.println("x: " + row + " y: " + col + " check: " + gridTest.grid.get(row).get(col).CheckExplosion(row,col));
-                if(gridTest.grid.get(row).get(col).CheckExplosion(row,col) > counter
-                        && !coordinatesToBeExcluded.containsKey(row)
-                        && !coordinatesToBeExcluded.containsValue(col)){
-                    counter = gridTest.grid.get(row).get(col).CheckExplosion(row,col);
+                System.out.println("x: " + row + " y: " + col + " check: " + gridTest.grid.get(row).get(col).CheckExplosion(row,col,statementOfNearBubble));
+                if(gridTest.grid.get(row).get(col).CheckExplosion(row,col,statementOfNearBubble) > counter){
+                    counter = gridTest.grid.get(row).get(col).CheckExplosion(row,col,statementOfNearBubble);
                     y = col;
                     x = row;
-                    flag = true;
                 }
             }
         }
         System.out.println("Best: x: " + x + " y: " + y + " counter: " + counter);
-        gridTest.grid.get(x).get(y).Touched(x,y);
-        coordinatesToBeExcluded.put(x ,y);
-        return flag;
+        if(counter != 0) {
+            counterMovesLeft++;
+            gridTest.grid.get(x).get(y).Touched(x, y);
+        }
+        else {
+            System.out.println("COUNTER 0");
+            if (CheckNonExplodedBubbles()) {
+                System.out.println("READYTOEXPLODE");
+                test(gridTest, BubbleStatement.READY_TO_EXPLODE, statementToTouch);
+            }
+            if (CheckNonExplodedBubbles() && statementOfNearBubble == BubbleStatement.READY_TO_EXPLODE) {
+                System.out.println("PUFFY");
+                test(gridTest, BubbleStatement.PUFFY, statementToTouch);
+            }
+            if (CheckNonExplodedBubbles() && statementOfNearBubble == BubbleStatement.PUFFY) {
+                System.out.println("EMPTY");
+                test(gridTest, BubbleStatement.EMPTY, statementToTouch);
+            }
+        }
     }
 }
