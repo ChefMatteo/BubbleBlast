@@ -40,6 +40,7 @@ public class GameGrid {
     public StringBuilder getMovesOfGame() {
         return MovesOfGame;
     }
+    public int numberedList = 1;
 
     //Grid methods
     private void GridGeneration() {
@@ -97,11 +98,13 @@ public class GameGrid {
                 }
                 y = Integer.parseInt(coordinates.substring(1)) - 1;
                 MovesOfGame
-                        .append("Inserite le coordinate x: ")
+                        .append(numberedList)
+                        .append(") Inserite le coordinate x: ")
                         .append(x)
                         .append(" y: ")
                         .append(y)
                         .append("\n");
+                numberedList++;
 
 /*
             Chiamata per il cambio stato della bolla selezionata
@@ -115,7 +118,7 @@ public class GameGrid {
 */
                     if (!CheckNonExplodedBubbles()) {
                         System.out.println("Hai vinto!!!");
-                        MovesOfGame.append("partita vinta.\n");
+                        MovesOfGame.append("Partita vinta.\n");
                         return false;
                     } else {
                         GridStamp();
@@ -132,12 +135,18 @@ public class GameGrid {
                     }
                 } else {
                     System.out.println("Nessuna bolla presente, riprova");
-                    MovesOfGame.append("Inserite coordinate di una bolla esplosa.\n");
+                    MovesOfGame
+                            .append(numberedList)
+                            .append(") Inserite coordinate di una bolla esplosa.\n");
+                    numberedList++;
                     return true;
                 }
             } else {
                 System.out.println("Inserire coordinate valide");
-                MovesOfGame.append("Inserite coordinate non valide.\n");
+                MovesOfGame
+                        .append(numberedList)
+                        .append(") Inserite coordinate non valide.\n");
+                numberedList++;
                 return true;
             }
 

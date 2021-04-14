@@ -39,11 +39,13 @@ public class Bubble {
                 bubbleView = "(2)";
                 grid.GridStamp();
                 grid.getMovesOfGame()
-                        .append("Alle coordinate x: ")
+                        .append(grid.numberedList)
+                        .append(") Alle coordinate x: ")
                         .append(x)
                         .append(" y: ")
                         .append(y)
                         .append(" la bolla è passata a mezza gonfia.\n");
+                grid.numberedList++;
                 statement = BubbleStatement.PUFFY;
                 return true;
             }
@@ -51,11 +53,13 @@ public class Bubble {
                 bubbleView = "(1)";
                 grid.GridStamp();
                 grid.getMovesOfGame()
-                        .append("Alle coordinate x: ")
+                        .append(grid.numberedList)
+                        .append(") Alle coordinate x: ")
                         .append(x)
                         .append(" y: ")
                         .append(y)
                         .append(" la bolla è passata a pronta per esplodere.\n");
+                grid.numberedList++;
                 statement = BubbleStatement.READY_TO_EXPLODE;
                 return true;
             }
@@ -63,11 +67,13 @@ public class Bubble {
                 bubbleView = "   ";
                 grid.GridStamp();
                 grid.getMovesOfGame()
-                        .append("Alle coordinate x: ")
+                        .append(grid.numberedList)
+                        .append(") Alle coordinate x: ")
                         .append(x)
                         .append(" y: ")
                         .append(y)
                         .append(" la bolla è esplosa.\n");
+                grid.numberedList++;
                 statement = BubbleStatement.EXPLODED;
                 Explosion(x, y);
                 return true;
