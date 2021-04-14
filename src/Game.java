@@ -1,25 +1,25 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 public class Game {
     public static void main(String[] args) {
         GameGrid gameGrid = GameGrid.getGameGrid();
         Start(gameGrid);
+//        gameGrid.HeadTest();
         boolean flag = true;
 /*
         Ciclo continuo fino ad esaurimento mosse o eventuale vincita
 */
+
         while (gameGrid.MovesLeftController() && flag) {
             flag = InGame(gameGrid);
         }
 /*
         Stampa file di log
 */
+
         try {
             FileWriter writer = new FileWriter("MovesOfGame.txt");
             writer.write(gameGrid.getMovesOfGame().toString());
@@ -30,6 +30,7 @@ public class Game {
 
     }
 
+    //Games methods
     private static void Start(GameGrid gameGrid) {
         System.out.println
                 ("""

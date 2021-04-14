@@ -1,6 +1,3 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.*;
 
@@ -17,13 +14,17 @@ public class GameGrid {
     //Attributes
     private List<List<Bubble>> grid;
     private int movesLeft;
-    private StringBuilder MovesOfGame = new StringBuilder();
+    private StringBuilder movesOfGame = new StringBuilder();
     private final String [] ACCEPTED_GRID_COORDINATES = {
             "A1","A2","A3","A4","A5","A6",
             "B1","B2","B3","B4","B5","B6",
             "C1","C2","C3","C4","C5","C6",
             "D1","D2","D3","D4","D5","D6",
             "E1","E2","E3","E4","E5","E6"};
+
+    //Attibutes for MovesLeft() controlles
+    private HashMap<Integer, Integer> coordinatesToBeExcluded = new HashMap<>();
+
 
     //Constructor
     private GameGrid() {
@@ -38,7 +39,7 @@ public class GameGrid {
         return grid;
     }
     public StringBuilder getMovesOfGame() {
-        return MovesOfGame;
+        return movesOfGame;
     }
     public int numberedList = 1;
 
@@ -71,7 +72,12 @@ public class GameGrid {
                         //Per ogni lista prende solo la view delle bolle
                         .map(Bubble::getBubbleView).collect(Collectors.toList()))
                 .forEach(System.out::println);
-        System.out.println("");
+        System.out.println();
+    }
+
+    private boolean MoveMovesLeft(){
+
+        return true;
     }
 
     public boolean Move(String coordinates) {
@@ -97,7 +103,7 @@ public class GameGrid {
                     default -> throw new IllegalStateException("Unexpected value: " + coordinates.toLowerCase().charAt(0));
                 }
                 y = Integer.parseInt(coordinates.substring(1)) - 1;
-                MovesOfGame
+                movesOfGame
                         .append(numberedList)
                         .append(") Inserite le coordinate x: ")
                         .append(x)
@@ -118,7 +124,7 @@ public class GameGrid {
 */
                     if (!CheckNonExplodedBubbles()) {
                         System.out.println("Hai vinto!!!");
-                        MovesOfGame.append("Partita vinta.\n");
+                        movesOfGame.append("Partita vinta.\n");
                         return false;
                     } else {
                         GridStamp();
@@ -135,7 +141,7 @@ public class GameGrid {
                     }
                 } else {
                     System.out.println("Nessuna bolla presente, riprova");
-                    MovesOfGame
+                    movesOfGame
                             .append(numberedList)
                             .append(") Inserite coordinate di una bolla esplosa.\n");
                     numberedList++;
@@ -143,7 +149,7 @@ public class GameGrid {
                 }
             } else {
                 System.out.println("Inserire coordinate valide");
-                MovesOfGame
+                movesOfGame
                         .append(numberedList)
                         .append(") Inserite coordinate non valide.\n");
                 numberedList++;
@@ -168,7 +174,7 @@ public class GameGrid {
 */
         if (movesLeft == 0 && CheckNonExplodedBubbles()) {
             System.out.println("Hai perso, ritenta!");
-            MovesOfGame.append("Partita persa.\n");
+            movesOfGame.append("Partita persa.\n");
             return false;
         }
         else return true;
@@ -177,5 +183,37 @@ public class GameGrid {
     //TODO MovesLeft
     public void MovesLeft(List<List<Bubble>> grid){
         movesLeft = 5;
+    }
+
+    public void HeadTest(){
+        GameGrid gridTest = getGameGrid();
+        int movesCounter = Integer.MAX_VALUE;
+        test(coordinatesToBeExcluded, gridTest);
+    }
+
+    public boolean test(HashMap<Integer, Integer> coordinatesToBeExcluded, GameGrid gridTest){
+        int maxCol = 5;
+        int maxRow = 4;
+        int x = 0;
+        int y = 0;
+        int counter = Integer.MIN_VALUE;
+        boolean flag = false;
+        for(int row = 0; row <= maxRow; row++){
+            for(int col = 0; col <= maxCol; col++){
+                System.out.println("x: " + row + " y: " + col + " check: " + gridTest.grid.get(row).get(col).CheckExplosion(row,col));
+                if(gridTest.grid.get(row).get(col).CheckExplosion(row,col) > counter
+                        && !coordinatesToBeExcluded.containsKey(row)
+                        && !coordinatesToBeExcluded.containsValue(col)){
+                    counter = gridTest.grid.get(row).get(col).CheckExplosion(row,col);
+                    y = col;
+                    x = row;
+                    flag = true;
+                }
+            }
+        }
+        System.out.println("Best: x: " + x + " y: " + y + " counter: " + counter);
+        gridTest.grid.get(x).get(y).Touched(x,y);
+        coordinatesToBeExcluded.put(x ,y);
+        return flag;
     }
 }

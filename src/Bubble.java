@@ -1,5 +1,8 @@
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
 
 public class Bubble {
     private BubbleStatement statement;
@@ -90,35 +93,64 @@ public class Bubble {
         int maxX = 4;
         int maxY = 5;
         //propagazione a sinistra
-        for(int i = y-1; i >= 0; i--){
-            if(grid.getGrid().get(x).get(i).getStatement() != BubbleStatement.EXPLODED){
-                grid.getGrid().get(x).get(i).Touched(x, i);
-                break;
-            }
-        }
+        IntStream.range(1, 6)
+                .filter(i -> y - i >= 0)
+                .filter(i -> grid.getGrid().get(x).get(y-i).getStatement() != BubbleStatement.EXPLODED)
+                .findFirst()
+                .ifPresent(i -> grid.getGrid().get(x).get(y-i).Touched(x, (y-i)));
         //propagazione in alto
-        for(int i = x-1; i >= 0; i--){
-            if(grid.getGrid().get(i).get(y).getStatement() != BubbleStatement.EXPLODED){
-                grid.getGrid().get(i).get(y).Touched(i, y);
-                break;
-            }
-        }
+        IntStream.range(1, 5)
+                .filter(i -> x-i >= 0)
+                .filter(i -> grid.getGrid().get(x-i).get(y).getStatement() != BubbleStatement.EXPLODED)
+                .findFirst()
+                .ifPresent(i -> grid.getGrid().get(x-i).get(y).Touched((x-i), y));
         //propagazione a destra
-        for(int i = y+1; i <= maxY; i++){
-            if(grid.getGrid().get(x).get(i).getStatement() != BubbleStatement.EXPLODED){
-                grid.getGrid().get(x).get(i).Touched(x, i);
-                break;
-            }
-        }
+        IntStream.range(1, 6)
+                .filter(i -> y + i <= 5)
+                .filter(i -> grid.getGrid().get(x).get(y+i).getStatement() != BubbleStatement.EXPLODED)
+                .findFirst()
+                .ifPresent(i -> grid.getGrid().get(x).get(y+i).Touched(x, (y+i)));
         //propagazione in basso
-        for(int i = x+1; i <= maxX; i++){
-            if(grid.getGrid().get(i).get(y).getStatement() != BubbleStatement.EXPLODED){
-                grid.getGrid().get(i).get(y).Touched(i, y);
-                break;
-            }
-        }
+        IntStream.range(1, 5)
+                .filter(i -> x+i <= 4)
+                .filter(i -> grid.getGrid().get(x+i).get(y).getStatement() != BubbleStatement.EXPLODED)
+                .findFirst()
+                .ifPresent(i -> grid.getGrid().get(x+i).get(y).Touched((x+i), y));
     }
 
+    public int CheckExplosion(int x, int y) {
+        GameGrid grid = GameGrid.getGameGrid();
+        //limiti max delle liste
+        int maxX = 4;
+        int maxY = 5;
+        long bubbleReadyToExplodeCounter = 0;
+        //propagazione a sinistra
+        if(grid.getGrid().get(x).get(y).getStatement() == BubbleStatement.READY_TO_EXPLODE) {
+/*
+            bubbleReadyToExplodeCounter += IntStream.range(1, 2)
+                    .filter(i -> y - i >= 0)
+                    .filter(i -> grid.getGrid().get(x).get(y - i).getStatement() == BubbleStatement.READY_TO_EXPLODE)
+                    .findFirst();
+*/
+            //propagazione in alto
+            bubbleReadyToExplodeCounter += IntStream.range(1, 2)
+                    .filter(i -> x - i >= 0)
+                    .filter(i -> grid.getGrid().get(x - i).get(y).getStatement() == BubbleStatement.READY_TO_EXPLODE)
+                    .count();
+            //propagazione a destra
+            bubbleReadyToExplodeCounter += IntStream.range(1, 2)
+                    .filter(i -> y + 1 <= maxY)
+                    .filter( i-> grid.getGrid().get(x).get(y + 1).getStatement() == BubbleStatement.READY_TO_EXPLODE)
+                    .count();
+            //propagazione in basso
+            bubbleReadyToExplodeCounter += IntStream.range(1, 2)
+                    .filter(i -> x + 1 <= maxX)
+                    .filter(i -> grid.getGrid().get(x + 1).get(y).getStatement() == BubbleStatement.READY_TO_EXPLODE)
+                    .count();
+        }
+        System.out.println("Stream counter: " + bubbleReadyToExplodeCounter);
+        return (int) bubbleReadyToExplodeCounter;
+    }
 
 
 }
