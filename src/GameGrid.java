@@ -2,7 +2,6 @@ import java.util.*;
 import java.util.stream.*;
 
 public class GameGrid {
-    //Singleton
     private static GameGrid instance = null;
     public static GameGrid getGameGrid() {
         if (instance == null) {
@@ -13,19 +12,13 @@ public class GameGrid {
 
     //Attributes
     private List<List<Bubble>> grid;
+    private List<List<Bubble>> gridClone;
     private int movesLeft;
-    public static int counterMovesLeft = 1;
     private StringBuilder movesOfGame = new StringBuilder();
-    private final String [] ACCEPTED_GRID_COORDINATES = {
-            "A1","A2","A3","A4","A5","A6",
-            "B1","B2","B3","B4","B5","B6",
-            "C1","C2","C3","C4","C5","C6",
-            "D1","D2","D3","D4","D5","D6",
-            "E1","E2","E3","E4","E5","E6"};
 
     //Constructor
     private GameGrid() {
-        GridGeneration();
+        gridGeneration();
     }
 
     //Getters and setters
@@ -41,28 +34,24 @@ public class GameGrid {
     public int numberedList = 1;
 
     //Grid methods
-    private void GridGeneration() {
-
-/*
-        //***Test**
-        List<Bubble> test = new ArrayList<Bubble>();
-        test.add(new Bubble(2));
-        List<List<Bubble>> gridTest = new ArrayList<>();
-        gridTest.add(test);
-        grid = gridTest;
-*/
+    private void gridGeneration() {
         //Stream che crea 5 List.size()=5
         grid = IntStream.range(1, 6).mapToObj(a ->
                 //Stream che crea 6 bolle casuali e le inserisce nelle liste del primo stream
                 IntStream.range(1, 7)
-                        .mapToObj(b -> new Bubble((new Random().nextInt(3))))
+                        .mapToObj(b -> new Bubble((new Random().nextInt(3)), a, b))
+                        .toList())
+                .toList();
+        gridClone = IntStream.range(0, 5).mapToObj(a ->
+                //Stream che crea 6 bolle casuali e le inserisce nelle liste del primo stream
+                IntStream.range(0, 6)
+                        .mapToObj(b -> grid.get(a).get(b).bubbleClone())
                         .toList())
                 .toList();
 
-        MovesLeft(grid);
     }
 
-    public void GridStamp(){
+    public void gridStamp(){
         //Stream per ogni lista
         grid.stream()
                 .map(a -> a.stream()
@@ -72,16 +61,17 @@ public class GameGrid {
         System.out.println();
     }
 
-    private boolean MoveMovesLeft(){
-
-        return true;
-    }
-
-    public boolean Move(String coordinates) {
+    public boolean move(String coordinates) {
+        String [] ACCEPTED_GRID_COORDINATES = {
+                "A1","A2","A3","A4","A5","A6",
+                "B1","B2","B3","B4","B5","B6",
+                "C1","C2","C3","C4","C5","C6",
+                "D1","D2","D3","D4","D5","D6",
+                "E1","E2","E3","E4","E5","E6"};
 /*
         Controllo per movimenti rimanenti
 */
-        if (MovesLeftController()) {
+        if (movesLeftController()) {
             int y;
             int x;
 /*
@@ -115,16 +105,16 @@ public class GameGrid {
 /*
                 Verifica esistenza bolla
 */
-                if (grid.get(x).get(y).Touched(x, y)) {
+                if (grid.get(x).get(y).touched(x, y, grid, true)) {
 /*
                 Controllo per individuare una vittoria
 */
-                    if (!CheckNonExplodedBubbles()) {
+                    if (!checkNonExplodedBubbles(grid)) {
                         System.out.println("Hai vinto!!!");
                         movesOfGame.append("Partita vinta.\n");
                         return false;
                     } else {
-                        GridStamp();
+                        gridStamp();
                         movesLeft--;
 /*
                 Controllo per l'ortografia
@@ -156,7 +146,7 @@ public class GameGrid {
         } else return false;
     }
 
-    public boolean CheckNonExplodedBubbles() {
+    public boolean checkNonExplodedBubbles(List<List<Bubble>> grid) {
 /*
         Controllo per individuare bolle non esplose
 */
@@ -165,11 +155,19 @@ public class GameGrid {
                 .anyMatch(a->a.getStatement() != BubbleStatement.EXPLODED);
     }
 
-    public boolean MovesLeftController() {
+    public void touchAloneBubbles(List<List<Bubble>> grid) {
+        grid.stream()
+                .flatMap(Collection::stream)
+                .filter(a -> a.getStatement() != BubbleStatement.EXPLODED)
+                .findFirst()
+                .map(i -> i.touched(i.getX(), i.getY(), grid, false));
+    }
+
+    public boolean movesLeftController() {
 /*
             Controllo per individuare le mosse rimanenti
 */
-        if (movesLeft == 0 && CheckNonExplodedBubbles()) {
+        if (movesLeft == 0 && checkNonExplodedBubbles(grid)) {
             System.out.println("Hai perso, ritenta!");
             movesOfGame.append("Partita persa.\n");
             return false;
@@ -177,57 +175,77 @@ public class GameGrid {
         else return true;
     }
 
-    //TODO MovesLeft
-    public void MovesLeft(List<List<Bubble>> grid){
-        movesLeft = 50;
-    }
-
-    public void HeadTest(){
-        GameGrid gridTest = getGameGrid();
-        try {
-            test(gridTest, BubbleStatement.READY_TO_EXPLODE, BubbleStatement.READY_TO_EXPLODE);
-            System.out.println("counterBest: " + counterMovesLeft);
-        }catch (StackOverflowError e){
-            e.printStackTrace();
+    public void movesLeft() {
+        while (checkNonExplodedBubbles(gridClone)) {
+            double counterREADY;
+            double counterPUFFY;
+            double counterEMPTY;
+            int [] bestREADY = new int [2];
+            int [] bestPUFFY = new int [2];
+            int [] bestEMPTY = new int [2];
+            counterREADY = bestCounterMethod(BubbleStatement.READY_TO_EXPLODE,
+                    bestREADY, bestPUFFY, bestEMPTY);
+            counterPUFFY = bestCounterMethod(BubbleStatement.PUFFY,
+                    bestREADY, bestPUFFY, bestEMPTY);
+            counterEMPTY = bestCounterMethod(BubbleStatement.EMPTY,
+                    bestREADY, bestPUFFY, bestEMPTY);
+            double bestCounter = Math.max(Math.max(counterEMPTY, counterPUFFY), counterREADY);
+            if(bestCounter <= 0 && checkNonExplodedBubbles(gridClone)){
+                touchAloneBubbles(gridClone);
+                movesLeft++;
+            }
+            else {
+                if (bestCounter == counterREADY) {
+                    gridClone.get(bestREADY[0]).get(bestREADY[1]).touched(bestREADY[0], bestREADY[1], gridClone, false);
+                    movesLeft++;
+                } else if (bestCounter == counterPUFFY) {
+                    gridClone.get(bestPUFFY[0]).get(bestPUFFY[1]).touched(bestPUFFY[0], bestPUFFY[1], gridClone, false);
+                    gridClone.get(bestPUFFY[0]).get(bestPUFFY[1]).touched(bestPUFFY[0], bestPUFFY[1], gridClone, false);
+                    movesLeft += 2;
+                } else {
+                    gridClone.get(bestEMPTY[0]).get(bestEMPTY[1]).touched(bestEMPTY[0], bestEMPTY[1], gridClone, false);
+                    gridClone.get(bestEMPTY[0]).get(bestEMPTY[1]).touched(bestEMPTY[0], bestEMPTY[1], gridClone, false);
+                    gridClone.get(bestEMPTY[0]).get(bestEMPTY[1]).touched(bestEMPTY[0], bestEMPTY[1], gridClone, false);
+                    movesLeft += 3;
+                }
+            }
         }
     }
 
-    public void test (GameGrid gridTest, BubbleStatement statementOfNearBubble, BubbleStatement statementToTouch) {
-        System.out.println("INIZIO");
+    public double bestCounterMethod(BubbleStatement statementToTouch, int [] bestREADY, int [] bestPUFFY, int [] bestEMPTY){
         int maxCol = 5;
         int maxRow = 4;
         int x = 0;
         int y = 0;
-        int counter = Integer.MIN_VALUE;
-        for(int row = 0; row <= maxRow; row++){
-            for(int col = 0; col <= maxCol; col++){
-                System.out.println("x: " + row + " y: " + col + " check: " + gridTest.grid.get(row).get(col).CheckExplosion(row,col,statementOfNearBubble));
-                if(gridTest.grid.get(row).get(col).CheckExplosion(row,col,statementOfNearBubble) > counter){
-                    counter = gridTest.grid.get(row).get(col).CheckExplosion(row,col,statementOfNearBubble);
-                    y = col;
-                    x = row;
+        double counter = 0;
+        for (int row = 0; row <= maxRow; row++) {
+            for (int col = 0; col <= maxCol; col++) {
+                if (gridClone.get(row).get(col).getStatement() == statementToTouch) {
+                    if (gridClone.get(row).get(col).checkExplosion(row, col, BubbleStatement.READY_TO_EXPLODE) > counter) {
+                        counter = gridClone.get(row).get(col).checkExplosion(row, col, BubbleStatement.READY_TO_EXPLODE);
+                        if(statementToTouch == BubbleStatement.READY_TO_EXPLODE) {
+                            bestREADY[0] = row;
+                            bestREADY[1] = col;
+                        }
+                        else if(statementToTouch == BubbleStatement.PUFFY) {
+                            bestPUFFY[0] = row;
+                            bestPUFFY[1] = col;
+                        }
+                        if(statementToTouch == BubbleStatement.EMPTY) {
+                            bestEMPTY[0] = row;
+                            bestEMPTY[1] = col;
+                        }
+                    }
                 }
             }
         }
-        System.out.println("Best: x: " + x + " y: " + y + " counter: " + counter);
-        if(counter != 0) {
-            counterMovesLeft++;
-            gridTest.grid.get(x).get(y).Touched(x, y);
+        //controllo stato bolla selezionata
+        if(statementToTouch == BubbleStatement.PUFFY){
+            counter--;
         }
-        else {
-            System.out.println("COUNTER 0");
-            if (CheckNonExplodedBubbles()) {
-                System.out.println("READYTOEXPLODE");
-                test(gridTest, BubbleStatement.READY_TO_EXPLODE, statementToTouch);
-            }
-            if (CheckNonExplodedBubbles() && statementOfNearBubble == BubbleStatement.READY_TO_EXPLODE) {
-                System.out.println("PUFFY");
-                test(gridTest, BubbleStatement.PUFFY, statementToTouch);
-            }
-            if (CheckNonExplodedBubbles() && statementOfNearBubble == BubbleStatement.PUFFY) {
-                System.out.println("EMPTY");
-                test(gridTest, BubbleStatement.EMPTY, statementToTouch);
-            }
+        else if(statementToTouch == BubbleStatement.EMPTY){
+            counter -= 2;
         }
+        return counter;
     }
 }

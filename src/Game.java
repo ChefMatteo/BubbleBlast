@@ -1,39 +1,17 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
-import java.util.stream.IntStream;
 
 public class Game {
     public static void main(String[] args) {
-        GameGrid gameGrid = GameGrid.getGameGrid();
-        Start(gameGrid);
-        gameGrid.HeadTest();
-        boolean flag = true;
-/*
-        Ciclo continuo fino ad esaurimento mosse o eventuale vincita
-*/
-
-/*
-        while (gameGrid.MovesLeftController() && flag) {
-            flag = InGame(gameGrid);
-        }
-*/
-/*
-        Stampa file di log
-*/
-
-        try {
-            FileWriter writer = new FileWriter("MovesOfGame.txt");
-            writer.write(gameGrid.getMovesOfGame().toString());
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        GameGrid game = GameGrid.getGameGrid();
+        start(game);
+        inGame(game);
+        endGame(game);
     }
 
     //Games methods
-    private static void Start(GameGrid gameGrid) {
+    private static void start(GameGrid gameGrid) {
         System.out.println
                 ("""
                                 BUBBLEBLAST START!
@@ -45,14 +23,29 @@ public class Game {
                                 le bolle mezze gonfie sono rappresentate da (2)
                                 le bolle che stanno per esplodere sono rappresentate da (1)
                         """);
+        gameGrid.movesLeft();
         System.out.println("Hai a disposizione " + gameGrid.getMovesLeft() + " tentativi!");
         gameGrid.getMovesOfGame().append("Partita iniziata con ").append(gameGrid.getMovesLeft()).append(" tentativi.\n");
-        gameGrid.GridStamp();
+        gameGrid.gridStamp();
     }
 
-    private static boolean InGame(GameGrid gameGrid) {
+    private static void inGame(GameGrid gameGrid) {
         Scanner sc = new Scanner(System.in);
-        return gameGrid.Move(sc.next());
+        boolean flag = true;
+        while (gameGrid.movesLeftController() && flag) {
+            flag = gameGrid.move(sc.next());
+        }
+    }
+
+    private static void endGame(GameGrid gameGrid){
+        try {
+            FileWriter writer = new FileWriter("MovesOfGame.txt");
+            writer.write(gameGrid.getMovesOfGame().toString());
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
 

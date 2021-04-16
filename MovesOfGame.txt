@@ -1,1 +1,8 @@
-Partita iniziata con 50 tentativi.
+Partita iniziata con 3 tentativi.
+1) Inserite le coordinate x: 0 y: 1
+2) Alle coordinate x: 0 y: 1 la bolla è passata a mezza gonfia.
+3) Inserite le coordinate x: 0 y: 1
+4) Alle coordinate x: 0 y: 1 la bolla è passata a pronta per esplodere.
+5) Inserite le coordinate x: 0 y: 2
+6) Alle coordinate x: 0 y: 2 la bolla è passata a mezza gonfia.
+Partita persa.
