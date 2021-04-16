@@ -1,5 +1,6 @@
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Scanner;
 
 public class Game {
@@ -23,8 +24,10 @@ public class Game {
                                 le bolle mezze gonfie sono rappresentate da (2)
                                 le bolle che stanno per esplodere sono rappresentate da (1)
                         """);
+        long startTime = System.currentTimeMillis();
         gameGrid.movesLeft();
-        System.out.println("Hai a disposizione " + gameGrid.getMovesLeft() + " tentativi!");
+        System.out.println("Risolto in: " + (System.currentTimeMillis() - startTime) + " millisecondi");
+        System.out.println("Hai a disposizione " + gameGrid.getMovesLeft() + " tentativi!\n");
         gameGrid.getMovesOfGame().append("Partita iniziata con ").append(gameGrid.getMovesLeft()).append(" tentativi.\n");
         gameGrid.gridStamp();
     }
