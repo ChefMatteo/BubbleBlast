@@ -1,7 +1,21 @@
+import lombok.Data;
+
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.*;
 
+@Data
 public class GameGrid {
+    private List<List<Bubble>> grid;
+    private List<List<Bubble>> gridClone;
+    private int movesLeft;
+    private StringBuilder movesOfGame = new StringBuilder();
+    private int numberedList = 1;
+
+    //Constructor
+    private GameGrid() {
+        gridGeneration();
+    }
     private static GameGrid instance = null;
     public static GameGrid getGameGrid() {
         if (instance == null) {
@@ -10,40 +24,18 @@ public class GameGrid {
         return instance;
     }
 
-    //Attributes
-    private List<List<Bubble>> grid;
-    private List<List<Bubble>> gridClone;
-    private int movesLeft;
-    private StringBuilder movesOfGame = new StringBuilder();
+    //Methods
 
-    //Constructor
-    private GameGrid() {
+    public void reset(){
         gridGeneration();
     }
-
-    //Getters and setters
-    public int getMovesLeft() {
-        return movesLeft;
-    }
-    public List<List<Bubble>> getGrid() {
-        return grid;
-    }
-    public StringBuilder getMovesOfGame() {
-        return movesOfGame;
-    }
-    public int numberedList = 1;
-
-    //Grid methods
     private void gridGeneration() {
-        //Stream che crea 5 List.size()=5
         grid = IntStream.range(1, 6).mapToObj(a ->
-                //Stream che crea 6 bolle casuali e le inserisce nelle liste del primo stream
                 IntStream.range(1, 7)
-                        .mapToObj(b -> new Bubble((new Random().nextInt(3)), a, b))
+                        .mapToObj(b -> new Bubble((new Random().nextInt(3)), a-1, b-1))
                         .toList())
                 .toList();
         gridClone = IntStream.range(0, 5).mapToObj(a ->
-                //Stream che crea 6 bolle casuali e le inserisce nelle liste del primo stream
                 IntStream.range(0, 6)
                         .mapToObj(b -> grid.get(a).get(b).bubbleClone())
                         .toList())
@@ -52,44 +44,42 @@ public class GameGrid {
     }
 
     public void gridStamp(){
-        //Stream per ogni lista
         grid.stream()
                 .map(a -> a.stream()
-                        //Per ogni lista prende solo la view delle bolle
                         .map(Bubble::getBubbleView).collect(Collectors.toList()))
                 .forEach(System.out::println);
-        System.out.println();
+        System.out.println("");
     }
 
     public boolean move(String coordinates) {
-        String [] ACCEPTED_GRID_COORDINATES = {
-                "A1","A2","A3","A4","A5","A6",
-                "B1","B2","B3","B4","B5","B6",
-                "C1","C2","C3","C4","C5","C6",
-                "D1","D2","D3","D4","D5","D6",
-                "E1","E2","E3","E4","E5","E6"};
-/*
-        Controllo per movimenti rimanenti
-*/
         if (movesLeftController()) {
             int y;
             int x;
-/*
-        Controllo per la validità delle coordinate
-*/
-            if (Arrays.asList(ACCEPTED_GRID_COORDINATES).contains(coordinates.toUpperCase())) {
-/*
-            Trasformazione coordinate in numeri validi per matrice
-*/
-                switch (coordinates.toUpperCase().charAt(0)) {
-                    case 'A' -> x = 0;
-                    case 'B' -> x = 1;
-                    case 'C' -> x = 2;
-                    case 'D' -> x = 3;
-                    case 'E' -> x = 4;
-                    default -> throw new IllegalStateException("Unexpected value: " + coordinates.toLowerCase().charAt(0));
+            switch (coordinates.toUpperCase().charAt(0)) {
+                case 'A' -> x = 0;
+                case 'B' -> x = 1;
+                case 'C' -> x = 2;
+                case 'D' -> x = 3;
+                case 'E' -> x = 4;
+                default -> {
+                    System.out.println("Inserire coordinate valide");
+                    movesOfGame
+                            .append(numberedList)
+                            .append(") Inserite coordinate non valide.\n");
+                    numberedList++;
+                    return true;
                 }
+            }
+            if(coordinates.length() == 2) {
                 y = Integer.parseInt(coordinates.substring(1)) - 1;
+                if (y < 0 || y > 5) {
+                    System.out.println("Inserire coordinate valide");
+                    movesOfGame
+                            .append(numberedList)
+                            .append(") Inserite coordinate non valide.\n");
+                    numberedList++;
+                    return true;
+                }
                 movesOfGame
                         .append(numberedList)
                         .append(") Inserite le coordinate x: ")
@@ -98,17 +88,7 @@ public class GameGrid {
                         .append(y)
                         .append("\n");
                 numberedList++;
-
-/*
-            Chiamata per il cambio stato della bolla selezionata
-*/
-/*
-                Verifica esistenza bolla
-*/
-                if (grid.get(x).get(y).touched(x, y, grid, true)) {
-/*
-                Controllo per individuare una vittoria
-*/
+                if (grid.get(x).get(y).touched(x, y, grid, true, 1)) {
                     if (!checkNonExplodedBubbles(grid)) {
                         System.out.println("Hai vinto!!!");
                         movesOfGame.append("Partita vinta.\n");
@@ -116,9 +96,6 @@ public class GameGrid {
                     } else {
                         gridStamp();
                         movesLeft--;
-/*
-                Controllo per l'ortografia
-*/
                         if (movesLeft == 1) {
                             System.out.println("Hai " + movesLeft + " tentativo rimasto");
                         } else {
@@ -134,7 +111,8 @@ public class GameGrid {
                     numberedList++;
                     return true;
                 }
-            } else {
+            }
+            else{
                 System.out.println("Inserire coordinate valide");
                 movesOfGame
                         .append(numberedList)
@@ -142,14 +120,10 @@ public class GameGrid {
                 numberedList++;
                 return true;
             }
-
         } else return false;
     }
 
     public boolean checkNonExplodedBubbles(List<List<Bubble>> grid) {
-/*
-        Controllo per individuare bolle non esplose
-*/
         return grid.stream()
                 .flatMap(Collection::stream)
                 .anyMatch(a->a.getStatement() != BubbleStatement.EXPLODED);
@@ -160,13 +134,10 @@ public class GameGrid {
                 .flatMap(Collection::stream)
                 .filter(a -> a.getStatement() != BubbleStatement.EXPLODED)
                 .findFirst()
-                .map(i -> i.touched(i.getX(), i.getY(), grid, false));
+                .map(i -> i.touched(i.getX(), i.getY(), grid, false, 1));
     }
 
     public boolean movesLeftController() {
-/*
-            Controllo per individuare le mosse rimanenti
-*/
         if (movesLeft == 0 && checkNonExplodedBubbles(grid)) {
             System.out.println("Hai perso, ritenta!");
             movesOfGame.append("Partita persa.\n");
@@ -196,16 +167,13 @@ public class GameGrid {
             }
             else {
                 if (bestCounter == counterREADY) {
-                    gridClone.get(bestREADY[0]).get(bestREADY[1]).touched(bestREADY[0], bestREADY[1], gridClone, false);
+                    gridClone.get(bestREADY[0]).get(bestREADY[1]).touched(bestREADY[0], bestREADY[1], gridClone, false,1 );
                     movesLeft++;
                 } else if (bestCounter == counterPUFFY) {
-                    gridClone.get(bestPUFFY[0]).get(bestPUFFY[1]).touched(bestPUFFY[0], bestPUFFY[1], gridClone, false);
-                    gridClone.get(bestPUFFY[0]).get(bestPUFFY[1]).touched(bestPUFFY[0], bestPUFFY[1], gridClone, false);
+                    gridClone.get(bestPUFFY[0]).get(bestPUFFY[1]).touched(bestPUFFY[0], bestPUFFY[1], gridClone, false, 2);
                     movesLeft += 2;
                 } else {
-                    gridClone.get(bestEMPTY[0]).get(bestEMPTY[1]).touched(bestEMPTY[0], bestEMPTY[1], gridClone, false);
-                    gridClone.get(bestEMPTY[0]).get(bestEMPTY[1]).touched(bestEMPTY[0], bestEMPTY[1], gridClone, false);
-                    gridClone.get(bestEMPTY[0]).get(bestEMPTY[1]).touched(bestEMPTY[0], bestEMPTY[1], gridClone, false);
+                    gridClone.get(bestEMPTY[0]).get(bestEMPTY[1]).touched(bestEMPTY[0], bestEMPTY[1], gridClone, false, 3);
                     movesLeft += 3;
                 }
             }
@@ -213,33 +181,30 @@ public class GameGrid {
     }
 
     public double bestCounterMethod(BubbleStatement statementToTouch, int [] bestREADY, int [] bestPUFFY, int [] bestEMPTY){
-        int maxCol = 5;
-        int maxRow = 4;
-        int x = 0;
-        int y = 0;
-        double counter = 0;
-        for (int row = 0; row <= maxRow; row++) {
-            for (int col = 0; col <= maxCol; col++) {
-                if (gridClone.get(row).get(col).getStatement() == statementToTouch) {
-                    if (gridClone.get(row).get(col).checkExplosion(row, col, BubbleStatement.READY_TO_EXPLODE) > counter) {
-                        counter = gridClone.get(row).get(col).checkExplosion(row, col, BubbleStatement.READY_TO_EXPLODE);
-                        if(statementToTouch == BubbleStatement.READY_TO_EXPLODE) {
-                            bestREADY[0] = row;
-                            bestREADY[1] = col;
-                        }
-                        else if(statementToTouch == BubbleStatement.PUFFY) {
-                            bestPUFFY[0] = row;
-                            bestPUFFY[1] = col;
-                        }
-                        if(statementToTouch == BubbleStatement.EMPTY) {
-                            bestEMPTY[0] = row;
-                            bestEMPTY[1] = col;
+        AtomicReference<Double> finalCounter = new AtomicReference<>(0.0);
+        gridClone.stream()
+                .flatMap(List<Bubble>::stream)
+                .filter(a-> gridClone.get(a.getX()).get(a.getY()).getStatement() == statementToTouch)
+                .forEach(a->{
+                    if(gridClone.get(a.getX()).get(a.getY()).checkExplosion(a.getX(),a.getY(), /*BubbleStatement.READY_TO_EXPLODE,*/ gridClone) > finalCounter.get()){
+                        finalCounter.set(gridClone.get(a.getX()).get(a.getY()).checkExplosion(a.getX(), a.getY(),/* BubbleStatement.READY_TO_EXPLODE,*/ gridClone));
+                        switch (statementToTouch){
+                            case READY_TO_EXPLODE -> {
+                                bestREADY[0] = a.getX();
+                                bestREADY[1] = a.getY();
+                            }
+                            case PUFFY -> {
+                                bestPUFFY[0] = a.getX();
+                                bestPUFFY[1] = a.getY();
+                            }
+                            case EMPTY -> {
+                                bestEMPTY[0] = a.getX();
+                                bestEMPTY[1] = a.getY();
+                            }
                         }
                     }
-                }
-            }
-        }
-        //controllo stato bolla selezionata
+                });
+        double counter = finalCounter.get();
         if(statementToTouch == BubbleStatement.PUFFY){
             counter--;
         }

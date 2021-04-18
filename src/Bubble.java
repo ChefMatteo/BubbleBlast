@@ -1,6 +1,12 @@
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
 import java.util.*;
 import java.util.stream.IntStream;
 
+@NoArgsConstructor
+@Data
 public class Bubble {
     private BubbleStatement statement;
     private String bubbleView;
@@ -38,44 +44,12 @@ public class Bubble {
                 value = 1;
             }
         }
-    }
-    public Bubble() {
-    }
-
-    //    Getters and Setters
-    public BubbleStatement getStatement() {
-        return statement;
-    }
-    public String getBubbleView() {
-        return bubbleView;
-    }
-    public int getX() {
-        return x;
-    }
-    public void setX(int x) {
         this.x = x;
-    }
-    public int getY() {
-        return y;
-    }
-    public void setY(int y) {
         this.y = y;
     }
-    public double getValue() {
-        return value;
-    }
-    public void setValue(double value) {
-        this.value = value;
-    }
-    public void setStatement(BubbleStatement statement) {
-        this.statement = statement;
-    }
-    public void setBubbleView(String bubbleView) {
-        this.bubbleView = bubbleView;
-    }
 
-    //Bubble methods
-    public boolean touched(int x, int y, List<List<Bubble>> grid, boolean checkIfGameOrNot) {
+    //Methods
+    public boolean touched(int x, int y, List<List<Bubble>> grid, boolean checkIfGameOrNot, int nTimes) {
         GameGrid gameGrid = GameGrid.getGameGrid();
         switch (grid.get(x).get(y).getStatement()) {
             case EMPTY -> {
@@ -83,163 +57,166 @@ public class Bubble {
                 if(checkIfGameOrNot) {
                     gameGrid.gridStamp();
                     gameGrid.getMovesOfGame()
-                            .append(gameGrid.numberedList)
+                            .append(gameGrid.getNumberedList())
                             .append(") Alle coordinate x: ")
                             .append(x)
                             .append(" y: ")
                             .append(y)
                             .append(" la bolla è passata a mezza gonfia.\n");
-                    gameGrid.numberedList++;
+                    gameGrid.setNumberedList(gameGrid.getNumberedList()+1);
                 }
                 grid.get(x).get(y).setStatement(BubbleStatement.PUFFY);
                 grid.get(x).get(y).setValue(0.5);
-                return true;
             }
             case PUFFY -> {
                 grid.get(x).get(y).setBubbleView("(1)");
                 if(checkIfGameOrNot) {
                     gameGrid.gridStamp();
                     gameGrid.getMovesOfGame()
-                            .append(gameGrid.numberedList)
+                            .append(gameGrid.getNumberedList())
                             .append(") Alle coordinate x: ")
                             .append(x)
                             .append(" y: ")
                             .append(y)
                             .append(" la bolla è passata a pronta per esplodere.\n");
-                    gameGrid.numberedList++;
+                    gameGrid.setNumberedList(gameGrid.getNumberedList()+1);
                 }
                 grid.get(x).get(y).setStatement(BubbleStatement.READY_TO_EXPLODE);
                 grid.get(x).get(y).setValue(1);
-                return true;
             }
             case READY_TO_EXPLODE -> {
                 grid.get(x).get(y).setBubbleView("   ");
                 if(checkIfGameOrNot) {
                     gameGrid.gridStamp();
                     gameGrid.getMovesOfGame()
-                            .append(gameGrid.numberedList)
+                            .append(gameGrid.getNumberedList())
                             .append(") Alle coordinate x: ")
                             .append(x)
                             .append(" y: ")
                             .append(y)
                             .append(" la bolla è esplosa.\n");
-                    gameGrid.numberedList++;
+                    gameGrid.setNumberedList(gameGrid.getNumberedList()+1);
                 }
                 grid.get(x).get(y).setStatement(BubbleStatement.EXPLODED);
                 explosion(x, y, grid, checkIfGameOrNot);
                 grid.get(x).get(y).setValue(0);
-                return true;
             }
             default -> {
                 return false;
             }
         }
+        if(nTimes == 2){
+            touched(x, y, grid, checkIfGameOrNot, 1);
+        }
+        else if (nTimes == 3){
+            touched(x, y, grid, checkIfGameOrNot, 2);
+        }
+        return true;
     }
 
     private void explosion(int x, int y, List<List<Bubble>> grid, boolean checkIfGameOrNot) {
-        //limiti max delle liste
-        int maxX = 4;
-        int maxY = 5;
         //propagazione a sinistra
         IntStream.range(1, 6)
                 .filter(i -> y - i >= 0)
                 .filter(i -> grid.get(x).get(y - i).getStatement() != BubbleStatement.EXPLODED)
                 .findFirst()
-                .ifPresent(i -> grid.get(x).get(y - i).touched(x, (y - i), grid, checkIfGameOrNot));
+                .ifPresent(i -> grid.get(x).get(y - i).touched(x, (y - i), grid, checkIfGameOrNot, 1));
         //propagazione in alto
         IntStream.range(1, 5)
                 .filter(i -> x - i >= 0)
                 .filter(i -> grid.get(x - i).get(y).getStatement() != BubbleStatement.EXPLODED)
                 .findFirst()
-                .ifPresent(i -> grid.get(x - i).get(y).touched((x - i), y, grid, checkIfGameOrNot));
+                .ifPresent(i -> grid.get(x - i).get(y).touched((x - i), y, grid, checkIfGameOrNot, 1));
         //propagazione a destra
         IntStream.range(1, 6)
                 .filter(i -> y + i <= 5)
                 .filter(i -> grid.get(x).get(y + i).getStatement() != BubbleStatement.EXPLODED)
                 .findFirst()
-                .ifPresent(i -> grid.get(x).get(y + i).touched(x, (y + i), grid, checkIfGameOrNot));
+                .ifPresent(i -> grid.get(x).get(y + i).touched(x, (y + i), grid, checkIfGameOrNot, 1));
         //propagazione in basso
         IntStream.range(1, 5)
                 .filter(i -> x + i <= 4)
                 .filter(i -> grid.get(x + i).get(y).getStatement() != BubbleStatement.EXPLODED)
                 .findFirst()
-                .ifPresent(i -> grid.get(x + i).get(y).touched((x + i), y, grid, checkIfGameOrNot));
+                .ifPresent(i -> grid.get(x + i).get(y).touched((x + i), y, grid, checkIfGameOrNot, 1));
     }
 
-    public double checkExplosion(int x, int y, BubbleStatement statement) {
-        GameGrid grid = GameGrid.getGameGrid();
-        //controlli se 2° livello è già controllato da altre bolle
+    public double checkExplosion(int x, int y/*, BubbleStatement statement*/, List<List<Bubble>> grid) {
         boolean flagL = false;
         boolean flagUp = false;
         boolean flagR = false;
         double bubbleToCount = 0;
 
         //propagazione a sinistra
-        if (lPropagation(grid.getGrid(), x, y) == 1) {
+        if (lPropagation(grid, x, y) == 1) {
             flagL = true;
             bubbleToCount +=
-                    lPropagation(grid.getGrid(), x, y)+
+                    lPropagation(grid, x, y)+
 
-                            lPropagation(grid.getGrid(), x, y - 1) +
-                            upPropagation(grid.getGrid(), x, y - 1) +
-                            dwPropagation(grid.getGrid(), x, y - 1);
+                            lPropagation(grid, x, y - 1) +
+                            upPropagation(grid, x, y - 1) +
+                            dwPropagation(grid, x, y - 1);
         } else {
-            bubbleToCount += lPropagation(grid.getGrid(), x, y);
+            bubbleToCount += lPropagation(grid, x, y);
         }
 
         //propagazione in alto
-        if (upPropagation(grid.getGrid(), x, y) == 1) {
+        if (upPropagation(grid, x, y) == 1) {
             flagUp = true;
             bubbleToCount +=
-                    upPropagation(grid.getGrid(), x, y)+
+                    upPropagation(grid, x, y)+
 
-                            upPropagation(grid.getGrid(), x - 1, y) +
-                            rPropagation(grid.getGrid(), x - 1, y);
+                            dwPropagation(grid, x, y)+
+
+                            upPropagation(grid, x - 1, y) +
+                            rPropagation(grid, x - 1, y);
             if (!flagL) {
-                bubbleToCount += lPropagation(grid.getGrid(), x - 1, y);
+                bubbleToCount += lPropagation(grid, x - 1, y);
             }
         } else{
-            bubbleToCount += upPropagation(grid.getGrid(), x, y);
+            bubbleToCount += upPropagation(grid, x, y);
         }
 
         //propagazione a destra
-        if (rPropagation(grid.getGrid(), x, y) == 1) {
+        if (rPropagation(grid, x, y) == 1) {
             flagR = true;
             bubbleToCount +=
-                    rPropagation(grid.getGrid(), x, y)+
+                    rPropagation(grid, x, y)+
 
-                            rPropagation(grid.getGrid(), x, y+1) +
-                            dwPropagation(grid.getGrid(), x, y + 1);
+                            rPropagation(grid, x, y+1) +
+                            dwPropagation(grid, x, y + 1);
             if (!flagUp) {
-                bubbleToCount += upPropagation(grid.getGrid(), x, y + 1);
+                bubbleToCount += upPropagation(grid, x, y + 1);
             }
         } else{
-            bubbleToCount += rPropagation(grid.getGrid(), x, y);
+            bubbleToCount += rPropagation(grid, x, y);
         }
 
         //propagazione in basso
-        if (dwPropagation(grid.getGrid(), x, y) == 1) {
+        if (dwPropagation(grid, x, y) == 1) {
             bubbleToCount++;
             bubbleToCount +=
-                    dwPropagation(grid.getGrid(), x, y)+
+                    dwPropagation(grid, x, y)+
 
-                            dwPropagation(grid.getGrid(), x + 1, y);
+                            dwPropagation(grid, x + 1, y);
             if (!flagR) {
-                bubbleToCount += rPropagation(grid.getGrid(), x + 1, y);
+                bubbleToCount += rPropagation(grid, x + 1, y);
             }
             if (!flagL) {
-                bubbleToCount += lPropagation(grid.getGrid(), x + 1, y);
+                bubbleToCount += lPropagation(grid, x + 1, y);
             }
         } else {
-            bubbleToCount += dwPropagation(grid.getGrid(), x, y);
+            bubbleToCount += dwPropagation(grid, x, y);
         }
 
+/*
         if(statement == BubbleStatement.READY_TO_EXPLODE){
-            bubbleToCount += checkExplosion(x, y, BubbleStatement.PUFFY);
+            bubbleToCount += checkExplosion(x, y, BubbleStatement.PUFFY, grid);
         }
         else if(statement == BubbleStatement.PUFFY){
-            bubbleToCount += checkExplosion(x, y, BubbleStatement.EMPTY);
+            bubbleToCount += checkExplosion(x, y, BubbleStatement.EMPTY, grid);
         }
+*/
         return bubbleToCount;
     }
 
@@ -265,7 +242,7 @@ public class Bubble {
         return IntStream.range(1, 2)
                 .filter(i -> y + i <= 5 && y >= 0)
                 .filter(i -> x <= 4 && x >= 0)
-                .mapToDouble(i -> grid.get(x).get(y + 1).getValue())
+                .mapToDouble(i -> grid.get(x).get(y + i).getValue())
                 .findFirst()
                 .orElse(0);
     }
@@ -274,7 +251,7 @@ public class Bubble {
         return IntStream.range(1, 2)
                 .filter(i -> x + i <= 4 && x+i >= 0)
                 .filter(i -> y <=5 && y >= 0)
-                .mapToDouble(i -> grid.get(x + 1).get(y).getValue())
+                .mapToDouble(i -> grid.get(x + i).get(y).getValue())
                 .findFirst()
                 .orElse(0);
     }
